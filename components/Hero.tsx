@@ -2,8 +2,6 @@
 import Image from "next/image";
 import CustomButton from "./CustomButton";
 
-
-
 const Hero = () => {
     const handleScroll = () => {
     const nextSection = document.getElementById("discover");
@@ -14,7 +12,7 @@ const Hero = () => {
   };
     return (
     <div className="hero">
-      <div className="flex-1 pt-36 padding-x">
+      <div className="flex-1 padding-x"> {/* Убрали pt-36, так как отступ теперь в CSS */}
         <h1 className="hero__title">
           Find, book, rent a car—quick and super easy!
         </h1>
@@ -26,7 +24,7 @@ const Hero = () => {
 
         <CustomButton
           title="Explore Cars"
-          containerStyles="bg-primary-blue text-white rounded-full mt-10"
+          containerStyles="bg-[#2B59FF] text-white rounded-full px-8 py-4 text-lg font-semibold hover:bg-[#1d4ed8] shadow-md"
           handleClick={handleScroll}
         />
       </div>
