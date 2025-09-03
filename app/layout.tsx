@@ -1,12 +1,15 @@
-// app/layout.tsx
 import { Manrope } from "next/font/google";
+import "./globals.css"; // Убедитесь, что импортируете глобальные стили
 
-const manrope = Manrope({ subsets: ["latin"], weight: ["200","300","400","500","600","700","800"] });
 
-export default function RootLayout({ children }) {
+
+import { ReactNode } from "react";
+import { relative } from "path";
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={manrope.className}>{children}</body>
+      <body className={"relative"}>{children}</body>
     </html>
   );
 }
