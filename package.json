@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.7",
     "@tailwindcss/postcss": "^4.1.12",
     "next": "15.5.2",
     "postcss": "^8.5.6",

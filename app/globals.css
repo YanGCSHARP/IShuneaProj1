@@ -28,13 +28,13 @@ body {
 
 
 .navbar {
-  position: fixed; 
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95); 
-  backdrop-filter: blur(5px); 
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -624,6 +624,7 @@ body {
   width: 100%;
   position: relative;
   max-width: 48rem;
+  gap: 8px;
 }
 
 @media (max-width: 640px) {
@@ -633,12 +634,12 @@ body {
   }
 }
 
+
 .searchbar__item {
-  flex: 1;
+  position: relative;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  position: relative;
 }
 
 @media (max-width: 640px) {
@@ -663,6 +664,22 @@ body {
 
 @media (max-width: 640px) {
   .searchbar__input {
+    border-radius: 99px;
+  }
+}
+
+.searchbar__input:focus {
+  border-color: var(--primary-blue);
+}
+
+@media (max-width: 640px) {
+  .searchbar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .searchbar__input,
+  .search-manufacturer__input {
     border-radius: 9999px;
   }
 }
@@ -670,6 +687,7 @@ body {
 
 /* START: search manufacturer styles */
 .search-manufacturer {
+  position: relative;
   flex: 1;
   display: flex;
   justify-content: flex-start;
@@ -682,18 +700,23 @@ body {
   }
 }
 
+.search-manufacturer__input:focus {
+  border-color: var(--primary-blue);
+}
+
 .search-manufacturer__input {
   width: 100%;
-  height: 3rem;
-  padding-left: 3rem;
-  padding: 1rem;
+  height: 48px;
+  padding-left: 48px;
+  padding-right: 16px;
   border-top-left-radius: 9999px;
   border-bottom-left-radius: 9999px;
   background-color: var(--light-white);
   outline: 2px solid transparent;
   outline-offset: 2px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 14px;
+  border: 1px solid #e5e7eb;
 }
 
 @media (max-width: 640px) {
@@ -702,21 +725,7 @@ body {
   }
 }
 
-.search-manufacturer__options {
-  position: absolute;
-  margin-top: 0.25rem;
-  max-height: 15rem;
-  width: 100%;
-  overflow: auto;
-  border-radius: 0.375rem;
-  background-color: white;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-  font-size: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  ring: 1px solid rgba(0, 0, 0, 0.05);
-  z-index: 10;
-}
+
 
 .search-manufacturer__option {
   cursor: default;
