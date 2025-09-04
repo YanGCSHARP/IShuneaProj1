@@ -17,20 +17,23 @@ export const calculateCarRent = (city_mpg: number, year: number) => {
 
 
 export const generateCarImageUrl = (car: CarProps, angle?: string) => {
+  // Используем сервис Imagin Studio
   const url = new URL("https://cdn.imagin.studio/getimage");
-  const { make, model, year } = car;
-
-  url.searchParams.append('customer', process.env.NEXT_PUBLIC_IMAGIN_API_KEY || '');
-  url.searchParams.append('make', make);
-  url.searchParams.append('modelFamily', model.split(" ")[0]);
+  
+  const customerKey = process.env.NEXT_PUBLIC_IMAGIN_API_KEY || "hrjavascript-mastery";
+  
+  url.searchParams.append('customer', customerKey);
+  url.searchParams.append('make', car.make);
+  url.searchParams.append('modelFamily', car.model.split(" ")[0]);
   url.searchParams.append('zoomType', 'fullscreen');
-  url.searchParams.append('modelYear', `${year}`);
-  // url.searchParams.append('zoomLevel', zoomLevel);
-  url.searchParams.append('angle', `${angle}`);
+  url.searchParams.append('modelYear', `${car.year}`);
+  
+  if (angle) {
+    url.searchParams.append('angle', angle);
+  }
 
   return `${url}`;
-} 
-
+};
 // Создаем отдельную функцию для клиентского использования
 export const updateSearchParamsClient = (type: string, value: string) => {
   if (typeof window === 'undefined') return '';
@@ -62,43 +65,82 @@ export const deleteSearchParams = (type: string) => {
   return newPathname;
 };
 
+// Альтернативная функция с mock данными
+
+
 export async function fetchCars(filters: FilterProps) {
   const { manufacturer, year, model, limit, fuel } = filters;
 
-  // Правильные заголовки для Cars API
-  const headers = {
-    'x-rapidapi-key': '9ed9dae2a5msh0261f153bd3aa77p11b587jsncb81ac8152a2',
-		'x-rapidapi-host': 'cars-by-api-ninjas.p.rapidapi.com'
-  };
-
+  // Альтернативный API - NHTSA Vehicle API
   try {
-    // Создаем URL с параметрами
-    const url = new URL('https://cars-by-api-ninjas.p.rapidapi.com/v1/cars');
+    // Базовый URL для NHTSA API
+    let url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${manufacturer}?format=json`;
     
-    // Добавляем параметры только если они есть
-    if (manufacturer) url.searchParams.append('make', manufacturer);
-    if (year) url.searchParams.append('year', year.toString());
-    if (model) url.searchParams.append('model', model);
-    if (limit) url.searchParams.append('limit', limit.toString());
-    if (fuel) url.searchParams.append('fuel_type', fuel);
+    console.log("Fetching from NHTSA API URL:", url);
 
-    console.log("API URL:", url.toString());
-
-    const response = await fetch(url.toString(), { headers });
+    const response = await fetch(url);
 
     if (!response.ok) {
-      console.error("API Error:", response.status, response.statusText);
-      // Для отладки посмотрим текст ответа
-      const errorText = await response.text();
-      console.error("Error response:", errorText);
-      return [];
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
     console.log("API Response:", result);
-    return result;
+    
+    // Преобразуем данные NHTSA в наш формат
+    return transformNhtsaData(result.Results, filters);
   } catch (error) {
-    console.error("Error fetching cars:", error);
-    return [];
+    console.error("Error fetching cars from API:", error);
+    
+    // В случае ошибки пробуем другой API
+    return tryAlternativeApi(filters);
   }
 }
+
+// Функция для преобразования данных NHTSA в наш формат
+function transformNhtsaData(nhtsaData: any[], filters: FilterProps): CarProps[] {
+  return nhtsaData.slice(0, filters.limit || 10).map((vehicle, index) => ({
+    city_mpg: Math.floor(Math.random() * 30) + 10, // Генерируем случайные значения
+    class: "N/A",
+    combination_mpg: Math.floor(Math.random() * 30) + 10,
+    cylinders: Math.floor(Math.random() * 8) + 4,
+    displacement: Math.floor(Math.random() * 5) + 1,
+    drive: "FWD",
+    fuel_type: filters.fuel || "gas",
+    highway_mpg: Math.floor(Math.random() * 40) + 20,
+    make: vehicle.Make_Name,
+    model: vehicle.Model_Name,
+    transmission: "a",
+    year: filters.year || 2022,
+    image_url: `/car-images/${vehicle.Make_Name.toLowerCase()}-${vehicle.Model_Name.toLowerCase()}.jpg`
+  }));
+}
+
+// Функция для попытки использования альтернативного API
+async function tryAlternativeApi(filters: FilterProps): Promise<CarProps[]> {
+  try {
+    // Попробуем использовать другой API, например, Automotive API от RapidAPI
+    const rapidApiResponse = await fetch(
+      `https://automotive-api.p.rapidapi.com/models?make=${filters.manufacturer}&year=${filters.year}`,
+      {
+        headers: {
+          'X-RapidAPI-Key': '965b240e7emshe3267eeefc24adfp12eaa9jsn5a82ba6bc859',
+          'X-RapidAPI-Host': 'cars-by-api-ninjas.p.rapidapi.com'
+        }
+      }
+    );
+
+    if (rapidApiResponse.ok) {
+      const result = await rapidApiResponse.json();
+      return transformAutomotiveApiData(result, filters);
+    }
+    
+    throw new Error("All APIs failed");
+  } catch (error) {
+    console.error("All API attempts failed:", error);
+    throw new Error("Unable to fetch car data from any API");
+  }
+}
+
+// Функция с mock данными для использования при ошибках API
+

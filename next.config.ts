@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: ['cdn.imagin.studio', 'via.placeholder.com'],
+    unoptimized: true, // Добавьте это, если продолжаются проблемы с оптимизацией
+  },
+}
 
-export default nextConfig;
+module.exports = nextConfig

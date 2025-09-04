@@ -13,6 +13,7 @@ export interface CarProps {
   model: string;
   transmission: string;
   year: number;
+  image_url?: string; // Добавьте это поле, если API предоставляет URL изображений
 }
 
 export interface FilterProps {
