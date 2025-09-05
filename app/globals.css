@@ -42,6 +42,84 @@ body {
   flex: 1 0 auto; /* Занимает все доступное пространство, прижимая футер к низу */
 }
 
+
+.car-card__show-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 15px;
+  margin: 10px 0;
+  transition: all 0.3s;
+  border-radius: 8px;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(66, 153, 225, 0.3);
+  font-size: 14px;
+}
+
+.car-card__show-more-btn:hover {
+  background: #3182ce;
+}
+
+.car-card__show-more-btn svg {
+  margin-left: 8px;
+  transition: transform 0.3s;
+}
+
+.rotated {
+  transform: rotate(180deg);
+}
+
+/* Стили для дополнительных деталей */
+.car-card__additional-details {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.car-card__details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.car-card__detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.car-card__detail-label {
+  font-size: 12px;
+  color: #718096;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.car-card__detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 640px) {
+  .car-card__details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .car-card__show-more-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
 .max-width {
   max-width: 1440px;
   margin-left: auto;

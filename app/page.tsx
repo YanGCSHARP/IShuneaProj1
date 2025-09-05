@@ -7,29 +7,17 @@ import { fuels, yearsOfProduction } from '@/constants';
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   
-  let allCars = [];
-  let errorMessage = "";
-
-  try {
-    allCars = await fetchCars({
-      manufacturer: params.manufacturer || "toyota", // Значение по умолчанию
-      year: params.year || 2022,
-      fuel: params.fuel || "",
-      limit: params.limit || 10,
-      model: params.model || "",
-    });
-  } catch (error) {
-    console.error("Failed to fetch cars:", error);
-    errorMessage = "Failed to load cars from API. Using demo data instead.";
-    // Используем mock данные в случае ошибки
-    allCars = getMockCars({
-      manufacturer: params.manufacturer || "toyota",
-      year: params.year || 2022,
-      fuel: params.fuel || "",
-      limit: params.limit || 10,
-      model: params.model || "",
-    });
-  }
+  // Преобразуем параметры в правильные типы
+  const yearParam = params.year ? parseInt(params.year as unknown as string) : 2022;
+  const limitParam = params.limit ? parseInt(params.limit as unknown as string) : 10;
+  
+  const allCars = await fetchCars({
+    manufacturer: params.manufacturer || "",
+    year: yearParam,
+    fuel: params.fuel || "",
+    limit: limitParam,
+    model: params.model || "",
+  });
 
   const isDataEmpty = !Array.isArray(allCars) || allCars.length < 1;
 
@@ -52,13 +40,6 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         </div>
 
-        {errorMessage && (
-          <div className='home__error-container'>
-            <h2 className='text-black text-xl font-bold'>Notice</h2>
-            <p>{errorMessage}</p>
-          </div>
-        )}
-
         {!isDataEmpty ? (
           <section>
             <div className='home__cars-wrapper'>
@@ -68,14 +49,14 @@ export default async function Home({ searchParams }: HomeProps) {
             </div>
 
             <ShowMore
-              pageNumber={(params.limit || 10) / 10}
-              isNext={(params.limit || 10) > allCars.length}
+              pageNumber={(limitParam || 10) / 10}
+              isNext={(limitParam || 10) > allCars.length}
             />
           </section>
         ) : (
           <div className='home__error-container'>
-            <h2 className='text-black text-xl font-bold'>No results</h2>
-            <p>No cars found matching your criteria.</p>
+            <h2 className='text-black text-xl font-bold'>Oops, no results</h2>
+            <p>{allCars?.message || "No cars found. Try adjusting your search criteria."}</p>
           </div>
         )}
       </div>

@@ -1,0 +1,199 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #2d3748;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #4a5568;
+}
+
+.car-card {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.car-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.car-image {
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(90deg, #1a365d 0%, #2d3748 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+}
+
+.car-image::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/></svg>');
+  background-size: 50px 50px;
+  opacity: 0.3;
+}
+
+.car-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #4299e1;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.car-content {
+  padding: 25px;
+}
+
+.car-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.car-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+}
+
+.car-subtitle {
+  font-size: 1.1rem;
+  color: #4a5568;
+}
+
+.car-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.car-detail {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  background-color: #f8fafc;
+  border-radius: 10px;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #718096;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.show-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 14px 20px;
+  margin: 20px auto;
+  transition: all 0.3s;
+  border-radius: 10px;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3);
+}
+
+.show-more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(66, 153, 225, 0.4);
+}
+
+.show-more-btn svg {
+  margin-left: 10px;
+  transition: transform 0.4s;
+}
+
+.rotated {
+  transform: rotate(180deg);
+}
+
+.additional-details {
+  overflow: hidden;
+  transition: max-height 0.5s ease-out, opacity 0.4s ease;
+}
+
+.hidden {
+  max-height: 0;
+  opacity: 0;
+}
+
+.visible {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .car-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .show-more-btn {
+    width: 100%;
+  }
+}
+
+.logo {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #4299e1;
+  margin-bottom: 5px;
+}
+
+.car-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #48bb78;
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f0fff4;
+  border-radius: 10px;
+}

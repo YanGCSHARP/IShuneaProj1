@@ -17,7 +17,7 @@ export const calculateCarRent = (city_mpg: number, year: number) => {
 
 
 export const generateCarImageUrl = (car: CarProps, angle?: string) => {
-  // Используем сервис Imagin Studio
+  // Используем сервис Imagin Studio с данными из NHTSA API
   const url = new URL("https://cdn.imagin.studio/getimage");
   
   const customerKey = process.env.NEXT_PUBLIC_IMAGIN_API_KEY || "hrjavascript-mastery";
@@ -33,14 +33,34 @@ export const generateCarImageUrl = (car: CarProps, angle?: string) => {
   }
 
   return `${url}`;
-};
+}
 // Создаем отдельную функцию для клиентского использования
-export const updateSearchParamsClient = (type: string, value: string) => {
+// Функция для обновления параметров поиска на клиентской стороне
+export const updateSearchParamsClient = (params: Record<string, string | number>) => {
   if (typeof window === 'undefined') return '';
 
   const searchParams = new URLSearchParams(window.location.search);
-  searchParams.set(type, value);
+  
+  // Обновляем все переданные параметры
+  Object.entries(params).forEach(([key, value]) => {
+    if (value && value.toString().trim() !== '') {
+      searchParams.set(key, value.toString());
+    } else {
+      searchParams.delete(key);
+    }
+  });
+
   return `${window.location.pathname}?${searchParams.toString()}`;
+};
+
+// Функция для удаления параметров поиска
+export const deleteSearchParams = (type: string) => {
+  if (typeof window === 'undefined') return '';
+
+  const newSearchParams = new URLSearchParams(window.location.search);
+  newSearchParams.delete(type.toLocaleLowerCase());
+
+  return `${window.location.pathname}?${newSearchParams.toString()}`;
 };
 
 // И серверную версию для использования в getServerSideProps
@@ -52,18 +72,7 @@ export const updateSearchParams = (currentParams: string, type: string, value: s
 
 
 
-export const deleteSearchParams = (type: string) => {
-  // Set the specified search parameter to the given value
-  const newSearchParams = new URLSearchParams(window.location.search);
 
-  // Delete the specified search parameter
-  newSearchParams.delete(type.toLocaleLowerCase());
-
-  // Construct the updated URL pathname with the deleted search parameter
-  const newPathname = `${window.location.pathname}?${newSearchParams.toString()}`;
-
-  return newPathname;
-};
 
 // Альтернативная функция с mock данными
 
@@ -71,76 +80,116 @@ export const deleteSearchParams = (type: string) => {
 export async function fetchCars(filters: FilterProps) {
   const { manufacturer, year, model, limit, fuel } = filters;
 
-  // Альтернативный API - NHTSA Vehicle API
   try {
-    // Базовый URL для NHTSA API
-    let url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${manufacturer}?format=json`;
-    
-    console.log("Fetching from NHTSA API URL:", url);
+    // Если указан производитель, используем NHTSA API
+    if (manufacturer) {
+      const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${manufacturer}?format=json`;
+      console.log("Fetching from NHTSA API URL:", nhtsaUrl);
 
-    const response = await fetch(url);
+      const response = await fetch(nhtsaUrl);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Преобразуем данные NHTSA в наш формат
+      return transformNhtsaData(result.Results || [], filters);
     }
 
-    const result = await response.json();
-    console.log("API Response:", result);
-    
-    // Преобразуем данные NHTSA в наш формат
-    return transformNhtsaData(result.Results, filters);
+    // Если производитель не указан, возвращаем пустой массив
+    return [];
   } catch (error) {
-    console.error("Error fetching cars from API:", error);
-    
-    // В случае ошибки пробуем другой API
-    return tryAlternativeApi(filters);
+    console.error("Error fetching cars from NHTSA API:", error);
+    // В случае ошибки возвращаем mock данные
+    return getMockCars(filters);
   }
 }
 
 // Функция для преобразования данных NHTSA в наш формат
 function transformNhtsaData(nhtsaData: any[], filters: FilterProps): CarProps[] {
-  return nhtsaData.slice(0, filters.limit || 10).map((vehicle, index) => ({
-    city_mpg: Math.floor(Math.random() * 30) + 10, // Генерируем случайные значения
-    class: "N/A",
-    combination_mpg: Math.floor(Math.random() * 30) + 10,
-    cylinders: Math.floor(Math.random() * 8) + 4,
-    displacement: Math.floor(Math.random() * 5) + 1,
-    drive: "FWD",
-    fuel_type: filters.fuel || "gas",
-    highway_mpg: Math.floor(Math.random() * 40) + 20,
-    make: vehicle.Make_Name,
-    model: vehicle.Model_Name,
-    transmission: "a",
-    year: filters.year || 2022,
-    image_url: `/car-images/${vehicle.Make_Name.toLowerCase()}-${vehicle.Model_Name.toLowerCase()}.jpg`
-  }));
-}
-
-// Функция для попытки использования альтернативного API
-async function tryAlternativeApi(filters: FilterProps): Promise<CarProps[]> {
-  try {
-    // Попробуем использовать другой API, например, Automotive API от RapidAPI
-    const rapidApiResponse = await fetch(
-      `https://automotive-api.p.rapidapi.com/models?make=${filters.manufacturer}&year=${filters.year}`,
-      {
-        headers: {
-          'X-RapidAPI-Key': '965b240e7emshe3267eeefc24adfp12eaa9jsn5a82ba6bc859',
-          'X-RapidAPI-Host': 'cars-by-api-ninjas.p.rapidapi.com'
-        }
+  const { year, model, fuel, limit } = filters;
+  
+  return nhtsaData
+    .filter(vehicle => {
+      // Фильтрация по модели
+      if (model && !vehicle.Model_Name.toLowerCase().includes(model.toLowerCase())) {
+        return false;
       }
-    );
-
-    if (rapidApiResponse.ok) {
-      const result = await rapidApiResponse.json();
-      return transformAutomotiveApiData(result, filters);
-    }
-    
-    throw new Error("All APIs failed");
-  } catch (error) {
-    console.error("All API attempts failed:", error);
-    throw new Error("Unable to fetch car data from any API");
-  }
+      return true;
+    })
+    .slice(0, limit || 10)
+    .map((vehicle, index) => ({
+      city_mpg: Math.floor(Math.random() * 30) + 10,
+      class: "N/A",
+      combination_mpg: Math.floor(Math.random() * 30) + 10,
+      cylinders: Math.floor(Math.random() * 8) + 4,
+      displacement: Math.floor(Math.random() * 5) + 1,
+      drive: ["fwd", "rwd", "awd"][Math.floor(Math.random() * 3)],
+      fuel_type: fuel || ["gas", "electricity", "diesel"][Math.floor(Math.random() * 3)],
+      highway_mpg: Math.floor(Math.random() * 40) + 20,
+      make: vehicle.Make_Name,
+      model: vehicle.Model_Name,
+      transmission: "a",
+      year: year || 2022, // Используем год из фильтров
+    }));
 }
 
 // Функция с mock данными для использования при ошибках API
+function getMockCars(filters: FilterProps): CarProps[] {
+  const { manufacturer, year, model, limit, fuel } = filters;
+  
+  const mockCars = [
+    {
+      city_mpg: 23,
+      class: "compact car",
+      combination_mpg: 24,
+      cylinders: 4,
+      displacement: 1.6,
+      drive: "fwd",
+      fuel_type: "gas",
+      highway_mpg: 26,
+      make: "toyota",
+      model: "corolla",
+      transmission: "a",
+      year: 2022
+    },
+    {
+      city_mpg: 21,
+      class: "compact car",
+      combination_mpg: 24,
+      cylinders: 4,
+      displacement: 2.0,
+      drive: "fwd",
+      fuel_type: "gas",
+      highway_mpg: 29,
+      make: "honda",
+      model: "civic",
+      transmission: "a",
+      year: 2022
+    },
+    {
+      city_mpg: 19,
+      class: "SUV",
+      combination_mpg: 22,
+      cylinders: 4,
+      displacement: 2.5,
+      drive: "awd",
+      fuel_type: "gas",
+      highway_mpg: 26,
+      make: "mazda",
+      model: "cx-5",
+      transmission: "a",
+      year: 2022
+    }
+  ];
 
+  return mockCars.filter(car => {
+    if (manufacturer && car.make.toLowerCase() !== manufacturer.toLowerCase()) return false;
+    if (year && car.year !== year) return false;
+    if (model && !car.model.toLowerCase().includes(model.toLowerCase())) return false;
+    if (fuel && car.fuel_type.toLowerCase() !== fuel.toLowerCase()) return false;
+    return true;
+  }).slice(0, limit || 10);
+}

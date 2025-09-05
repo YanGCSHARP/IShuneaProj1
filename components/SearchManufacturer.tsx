@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 
 import { SearchManuFacturerProps } from "@/types";
@@ -7,6 +9,11 @@ import { manufacturers } from "@/constants";
 
 const SearchManufacturer = ({ manufacturer, setManuFacturer }: SearchManuFacturerProps) => {
   const [query, setQuery] = useState("");
+  const [selectedManufacturer, setSelectedManufacturer] = useState(manufacturer);
+
+  useEffect(() => {
+    setSelectedManufacturer(manufacturer);
+  }, [manufacturer]);
 
   const filteredManufacturers =
     query === ""
@@ -18,9 +25,14 @@ const SearchManufacturer = ({ manufacturer, setManuFacturer }: SearchManuFacture
             .includes(query.toLowerCase().replace(/\s+/g, ""))
         );
 
+  const handleChange = (value: string) => {
+    setSelectedManufacturer(value);
+    setManuFacturer(value);
+  };
+
   return (
     <div className='search-manufacturer'>
-      <Combobox value={manufacturer} onChange={setManuFacturer}>
+      <Combobox value={selectedManufacturer} onChange={handleChange}>
         <div className='relative w-full'>
           <Combobox.Button className='absolute top-[14px] left-4'>
             <Image
